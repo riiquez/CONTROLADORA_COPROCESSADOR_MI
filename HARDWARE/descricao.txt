@@ -1,0 +1,101 @@
+Tema
+Implementação de um algoritmo em um circuito especializado em FPGA com desenvolvimento de driver Linux em Assembly e de uma aplicação em linguagem C para utilizar o algoritmo implementado na FPGA.
+Objetivos de Aprendizagem
+O objetivo acadêmico é conectar a teoria de Arquitetura de Computadores (datapath, controle, paralelismo, memórias, I/O mapeado em memória, latência/throughput) com a prática de aceleração por hardware e interface Sistema Operacional/Hardware.
+Espera-se que ao final deste componente o/a discente seja capaz de:
+Aplicar conhecimentos de circuitos digitais e arquiteturas de computadores para desenvolver uma solução completa de hardware e software;
+Entender conceitos de Implementação de drivers de software;
+Entender dificuldades tecnológicos no desenvolvimento de sistemas digitais de propósito específico;
+Compreender a interface hardware-software;
+Compreender o mapeamento de memória em uma arquitetura ARM;
+Utilizar a interface de conexão entre HPS e FPGA da DE1-SoC;
+Programar em assembly para um processador com arquitetura ARM;
+Entender políticas de gerenciamento de sistema operacional Linux em arquitetura ARM;
+Compreender os princípios básicos da arquitetura da plataforma DE1-SoC;
+Utilizar as interfaces disponíveis na placa DE1-SoC;
+Entender o conceito de link-edição com acoplamento de diversos módulos objeto;
+Entender como uma aplicação em C pode ser usada para acessar funcionalidade de um dispositivo de hardware dedicado.
+
+Desafio
+Você faz parte de uma equipe que precisa construir um classificador de imagens de dígitos numéricos, que será embarcado em um SoC (System on Chip) heterogêneo (ARM + FPGA). O sistema completo será composto por:
+Núcleo classificador de imagens em FPGA (Verilog):
+Um co-processador com conjunto próprio de instruções (ISA), o qual implementa a inferência (classificação da imagem) de uma rede neural baseada em Extreme Learning Machine (ELM). 
+Driver em Linux (ARM) em Assembly:
+Uma API (sistema operacional Linux) para controlar o co-processador via MMIO (Memory-Mapped I/O).
+Aplicação em C (usuário):
+Uma aplicação em linguagem C para ler uma imagem com 28×28 pixels em escala de cinza no formato PNG, envia ao driver, receber o dígito previsto (0..9) e imprimi-lo na tela.
+Escopo da rede neural ELM
+Não será necessário treinar a rede ELM (Extreme Learning Machine), ela será tratada como uma sequência de quatro estágios (Fig. 1):
+
+Leitura do vetor de entrada representando a imagens (784 bytes)
+Processamento da camada oculta:
+h=activation(W_inx+b)
+Processamento da camada de saída:
+y=h
+Cômputo da Predição:
+pred=argmax(y)retorna 09
+
+O modelo base (parâmetros W_in,b,) será fornecido através de um conjunto de arquivos.
+
+Figura 1: Diagrama geral do motor de inferência na ELM
+
+Escopo da rede neural ELM
+O co-processador deverá ter o seguinte conjunto mínimo de instruções (todas com 32-bit):
+STORE_IMG: Armazena a imagem na memória para classificação;
+STORE_WEIGHTS: Armazena os pesos (W) na memória;
+STORE_BIAS: Armazena os vieses (b) na memória;
+START: Inicia o processamento (classificação) da imagem na memória;
+STATUS: devolve o estado do processamento e o valor predito, de acordo com as seguintes possibilidades:
+BUSY: em processamento;
+DONE: processamento concluído;
+ERROR: erro no processamento;
+Além do estado do processamento, a instrução STATUS devolve também o resultado da inferência como um número inteiro [0,9] codificado em 4-bit.
+
+Requisitos
+Entrada/Saída
+A entrada é uma imagem escala de cinza com 28×28 pixels, 8 bits/pixel [0,255] num arquivo formato PNG com 784 Bytes. Cada imagem representa apenas um dígito (0..9);
+A saída é um número inteiro pred no intervalo [0,9]
+Co-processador (Núcleo ELM — Verilog)  (Para o Marco 1)
+Implementar inferência ELM com pesos fornecidos.
+A arquitetura deve sequencial
+Deve haver:
+FSM de controle 
+datapath MAC (multiplica-acumula)
+ativação aproximada (LUT ou piecewise linear)
+argmax final
+memórias para armazenamento dos dados
+banco de registradores
+Valores devem ser representados em ponto fixo no formato Q4.12.
+Pesos devem ser armazenados em blocos de memória.
+Deve haver uma estratégia clara para armazenamento e acesso a W_in, b e β
+Driver (Linux ARM — Assembly) (Para o Marco 2)
+Implementar um driver em linguagem Assembly ARM que permita à aplicação:
+inicializar o hardware;
+enviar a imagem;
+enviar os pesos e o bias;
+iniciar inferência;
+aguardar finalização (polling ou interrupção);
+ler resultados e métricas.
+Você deve entregar:
+código do driver (e build);
+documentação da API (protótipos, semântica, erros);
+teste mínimo: classificar uma imagem conhecida repetidas vezes sem falhas.
+O modelo (tipo) de driver será definido pelo tutor (módulo de kernel ou userspace via /dev/mem). O enunciado exige MMIO e API consistente independentemente do tipo.
+Aplicação (C — usuário) (Para o Marco 3)
+A aplicação final deve:
+integrar ao projeto o IP-Core VGA disponível em: https://github.com/DestinyWolf/Problema_SD_2026_1?authuser=0
+ter 3 modos de operação:
+modo de inferência a partir de imagem oriunda de um arquivo;
+modo de inferência a partir de imagem desenhada na tela;
+modo de validação/benchmark.
+desenhar uma imagem usando um mouse e o IP-Core VGA;
+receber caminho para a imagem e parâmetros (via linha de comando);
+exibir a imagem a ser inferida usando o IP-Core VGA;
+enviar imagem ao coprocessador;
+obter e imprimir o número predito, através da interface do programa desenvolvida em modo texto;
+ter modo de validação/benchmark, através da interface do programa desenvolvida em modo texto:
+rodar N imagens e computar:
+acurácia (%);
+latência média e desvio;
+throughput (imagens/s);
+salvar um log simples (CSV recomendado);

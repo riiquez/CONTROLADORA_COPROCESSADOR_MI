@@ -17,7 +17,7 @@
 
 <a id="o-que-e"></a>
 
-<details open>
+<details>
 <summary><strong>Abrir: visão geral do projeto</strong></summary>
 
 Este repositório contém a versão do Marco 3 do classificador de dígitos para a DE1-SoC. A inferência da rede ELM roda em um coprocessador implementado na FPGA, enquanto o HPS Linux controla o hardware por MMIO usando uma aplicação em C e rotinas em ARM Assembly.
@@ -77,7 +77,7 @@ O hardware fica na pasta `HARDWARE/`. O HPS acessa os blocos da FPGA pela Lightw
 #define NV_LW_SPAN 0x00010000u
 ```
 
-<details open>
+<details>
 <summary><strong>PIOs usados pelo Marco 3</strong></summary>
 
 | Bloco | PIO | Offset | Direção no HPS | Uso |
@@ -222,7 +222,7 @@ Na pasta `HARDWARE/`, os blocos principais são:
 
 <a id="como-compilar"></a>
 
-<details open>
+<details>
 <summary><strong>Abrir: comandos na placa</strong></summary>
 
 Entre na pasta `MENU_API_C/` na DE1-SoC e compile:
@@ -287,7 +287,7 @@ Essa versão é útil para comparar o protocolo C puro com as rotinas ARM Assemb
 <details>
 <summary><strong>Abrir: arquivos C, headers e rotinas Assembly</strong></summary>
 
-<details open>
+<details>
 <summary><strong>Menu da aplicação final</strong></summary>
 
 O programa carrega o modelo na inicialização:
